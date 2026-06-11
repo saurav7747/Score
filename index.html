@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SauravScore</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0F172A">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SauravScore">
+    
+    <link rel="icon" href="icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- SPLASH SCREEN -->
+    <div id="splash" class="splash">
+        <div class="splash-content">
+            <div class="splash-logo">🏏</div>
+            <h1 class="splash-title">SauravScore</h1>
+            <p class="splash-subtitle">Built by Saurav Kumar</p>
+        </div>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <div id="main-app" class="main-app hidden">
+        <!-- NAVBAR -->
+        <nav class="navbar">
+            <div class="nav-left">
+                <span class="logo">🏏</span>
+                <h1>SauravScore</h1>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <button id="install-btn" class="install-btn hidden">Install App</button>
+                <button id="menu-btn" class="menu-btn">☰</button>
+            </div>
+        </nav>
+
+        <!-- DASHBOARD -->
+        <div id="dashboard-screen" class="screen">
+            <div class="dashboard-header">
+                <h2>Welcome to the Pitch</h2>
+                <p>Track every ball. Celebrate every run.</p>
+            </div>
+            
+            <div class="cards-container">
+                <div onclick="navigateTo('new-match')" class="dashboard-card">
+                    <div class="card-icon">⚡</div>
+                    <h3>New Match</h3>
+                    <p>Start a fresh game</p>
+                </div>
+                
+                <div onclick="navigateTo('history')" class="dashboard-card">
+                    <div class="card-icon">📜</div>
+                    <h3>Match History</h3>
+                    <p>View past games</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW MATCH SCREEN -->
+        <div id="new-match-screen" class="screen hidden">
+            <div class="screen-header">
+                <button onclick="navigateTo('dashboard')" class="back-btn">← Back</button>
+                <h2>New Match</h2>
+            </div>
+            
+            <form id="new-match-form" class="form-container">
+                <div class="input-group">
+                    <label>Team A Name</label>
+                    <input type="text" id="teamA" placeholder="e.g. India" required>
+                </div>
+                
+                <div class="input-group">
+                    <label>Team B Name</label>
+                    <input type="text" id="teamB" placeholder="e.g. Australia" required>
+                </div>
+                
+                <div class="input-group">
+                    <label>Total Overs</label>
+                    <input type="number" id="overs" value="20" min="1" max="50" required>
+                </div>
+                
+                <div class="input-group">
+                    <label>Toss Winner</label>
+                    <select id="toss-winner" required>
+                        <option value="">Select Team</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label>Decision</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="decision" value="bat" checked>
+                            <span>Bat First</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="decision" value="bowl">
+                            <span>Bowl First</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="start-btn">START MATCH</button>
+            </form>
+        </div>
+
+        <!-- LIVE MATCH SCREEN -->
+        <div id="live-match-screen" class="screen hidden">
+            <div class="live-header">
+                <button onclick="endMatchConfirm()" class="back-btn">End Match</button>
+                <div id="match-info" class="match-info">
+                    <span id="teams-display"></span>
+                </div>
+            </div>
+            
+            <!-- MAIN SCOREBOARD -->
+            <div class="scoreboard">
+                <div class="team-score" id="batting-team">
+                    <div class="team-name" id="batting-team-name"></div>
+                    <div class="score-main">
+                        <span id="total-runs">0</span>
+                        <span class="score-divider">/</span>
+                        <span id="total-wickets">0</span>
+                    </div>
+                    <div class="overs-info">
+                        <span id="current-over">0.0</span>
+                        <span class="crr">CRR: <span id="current-rr">0.00</span></span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- BATSMEN -->
+            <div class="section">
+                <h3 class="section-title">Batsmen</h3>
+                <div id="batsmen-list" class="players-grid"></div>
+            </div>
+            
+            <!-- CURRENT BOWLER -->
+            <div class="section">
+                <h3 class="section-title">Current Bowler</h3>
+                <div id="current-bowler" class="player-card"></div>
+            </div>
+            
+            <!-- SCORING PANEL -->
+            <div class="scoring-panel">
+                <h3 class="section-title">Score This Ball</h3>
+                <div class="score-buttons">
+                    <button onclick="addScore(0)" class="score-btn">0</button>
+                    <button onclick="addScore(1)" class="score-btn">1</button>
+                    <button onclick="addScore(2)" class="score-btn">2</button>
+                    <button onclick="addScore(3)" class="score-btn">3</button>
+                    <button onclick="addScore(4)" class="score-btn highlight">4</button>
+                    <button onclick="addScore(6)" class="score-btn highlight">6</button>
+                    <button onclick="addWicket()" class="score-btn danger">W</button>
+                    <button onclick="addExtra('WD')" class="score-btn">WD</button>
+                    <button onclick="addExtra('NB')" class="score-btn">NB</button>
+                </div>
+            </div>
+            
+            <!-- BALL HISTORY -->
+            <div class="section">
+                <h3 class="section-title">Ball History</h3>
+                <div id="ball-history" class="ball-history"></div>
+            </div>
+            
+            <div class="bottom-actions">
+                <button onclick="undoLastBall()" class="action-btn secondary">Undo</button>
+                <button onclick="showNextBatsmanModal()" class="action-btn">Next Batsman</button>
+            </div>
+        </div>
+
+        <!-- MATCH HISTORY SCREEN -->
+        <div id="history-screen" class="screen hidden">
+            <div class="screen-header">
+                <button onclick="navigateTo('dashboard')" class="back-btn">← Back</button>
+                <h2>Match History</h2>
+            </div>
+            <div id="history-list" class="history-list"></div>
+        </div>
+    </div>
+
+    <!-- MATCH RESULT MODAL -->
+    <div id="result-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2 id="modal-winner"></h2>
+            <p id="modal-margin"></p>
+            <div class="final-scores">
+                <div id="modal-teamA"></div>
+                <div id="modal-teamB"></div>
+            </div>
+            <button onclick="closeModalAndGoHome()" class="start-btn">Back to Dashboard</button>
+        </div>
+    </div>
+
+    <!-- NEXT BATSMAN MODAL -->
+    <div id="next-batsman-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>New Batsman</h3>
+            <input type="text" id="new-batsman-name" placeholder="Batsman Name" class="modal-input">
+            <div class="modal-actions">
+                <button onclick="hideNextBatsmanModal()" class="secondary-btn">Cancel</button>
+                <button onclick="addNewBatsman()" class="start-btn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // PWA - Install Prompt
+        let deferredPrompt;
+        const installBtn = document.getElementById('install-btn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.classList.remove('hidden');
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                installBtn.classList.add('hidden');
+            }
+            deferredPrompt = null;
+        });
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(reg => console.log('✅ Service Worker registered'))
+                    .catch(err => console.error('❌ Service Worker registration failed:', err));
+            });
+        }
+
+        // Offline Indicator
+        function updateOnlineStatus() {
+            const existing = document.getElementById('offline-msg');
+            if (!navigator.onLine) {
+                if (!existing) {
+                    const offlineMsg = document.createElement('div');
+                    offlineMsg.id = 'offline-msg';
+                    offlineMsg.style.cssText = `
+                        position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+                        background: #334155; color: #94A3B8; padding: 8px 20px;
+                        border-radius: 9999px; font-size: 0.9rem; z-index: 9999;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.3); white-space: nowrap;
+                    `;
+                    offlineMsg.textContent = 'Offline Mode Active';
+                    document.body.appendChild(offlineMsg);
+                }
+            } else {
+                if (existing) existing.remove();
+            }
+        }
+
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+
+        // Initialize App
+        window.onload = () => {
+            initializeApp();
+            updateOnlineStatus();
+        };
+    </script>
+</body>
+  </html>
+  
