@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SauravScore</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#FAF7F2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="SauravScore">
+    <link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+
+    <div id="splash-screen" class="splash-screen">
+        <div class="splash-content">
+            <h1 class="splash-logo">SauravScore</h1>
+            <p class="splash-author">Built by Saurav Kumar</p>
+        </div>
+    </div>
+
+    <div id="offline-indicator" class="toast hidden">Offline Mode Active</div>
+    <div id="install-banner" class="banner hidden">
+        <span>Install SauravScore for a native experience</span>
+        <button id="btn-install" class="btn btn-sm btn-primary">Install</button>
+    </div>
+
+    <main id="app-container" class="hidden">
+        
+        <section id="view-dashboard" class="view">
+            <header class="hero-header">
+                <h1>SauravScore</h1>
+                <p>Minimal Cricket Scoring App</p>
+            </header>
+            <div class="action-card">
+                <button id="btn-new-match" class="btn btn-primary btn-block">New Match</button>
+                <button id="btn-history" class="btn btn-secondary btn-block">Match History</button>
+            </div>
+            <div id="dashboard-active-match" class="hidden">
+                <h3 class="section-title">Active Match</h3>
+                <div id="active-match-card" class="match-card active-card"></div>
+            </div>
+        </section>
+
+        <section id="view-create-match" class="view hidden">
+            <header class="view-header">
+                <button class="btn-back">&larr; Dashboard</button>
+                <h2>Configure Match</h2>
+            </header>
+            <form id="form-create-match" class="form-container">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="team-a">Team A Name (Batting First)</label>
+                        <input type="text" id="team-a" required placeholder="e.g. India" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="team-b">Team B Name (Bowling First)</label>
+                        <input type="text" id="team-b" required placeholder="e.g. Australia" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="match-overs">Total Overs</label>
+                        <input type="number" id="match-overs" min="1" max="50" required placeholder="20" value="20">
+                    </div>
+                    <div class="form-group">
+                        <label for="toss-winner">Toss Winner</label>
+                        <select id="toss-winner" required>
+                            <option value="" disabled selected>Select Team</option>
+                            <option value="A">Team A</option>
+                            <option value="B">Team B</option>
+                        </select>
+                    </div>
+                    <div class="form-group cols-2">
+                        <label for="toss-decision">Toss Decision</label>
+                        <select id="toss-decision" required>
+                            <option value="bat">Elects to Bat</option>
+                            <option value="bowl">Elects to Bowl</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block margin-top-lg">Start Match</button>
+            </form>
+        </section>
+
+        <section id="view-scoreboard" class="view hidden">
+            <header class="scoreboard-header">
+                <button id="btn-score-back" class="btn-back">&larr; Leave</button>
+                <div class="header-actions">
+                    <button id="btn-edit-score" class="btn-icon" title="Manual Edit">Edit</button>
+                    <button id="btn-export-match" class="btn-icon" title="Export Data">JSON</button>
+                    <button id="btn-reset-match" class="btn-icon danger-text" title="Reset Match">Reset</button>
+                </div>
+            </header>
+
+            <div class="card live-score-card">
+                <div class="score-main-row">
+                    <div>
+                        <h2 id="display-team-batting" class="team-title">TEAM</h2>
+                        <div class="score-digits">
+                            <span id="display-runs">0</span> / <span id="display-wickets">0</span>
+                        </div>
+                    </div>
+                    <div class="score-meta-block">
+                        <div id="display-overs" class="meta-overs">0.0 Overs</div>
+                        <div class="meta-rates">
+                            <div>CRR <span id="display-crr">0.00</span></div>
+                            <div id="block-rrr" class="hidden">RRR <span id="display-rrr">0.00</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="display-target-strip" class="target-strip hidden">
+                    Target: <span id="display-target">0</span> | Need <span id="display-runs-needed">0</span> runs from <span id="display-balls-left">0</span> balls
+                </div>
+            </div>
+
+            <div id="match-result-banner" class="card result-card hidden">
+                <h3 id="display-result-winner">Match Finished</h3>
+                <p id="display-result-margin"></p>
+                <p id="display-result-scores" class="secondary-text text-sm"></p>
+            </div>
+
+            <div id="active-players-section" class="grid-two-col">
+                <div class="card table-card">
+                    <div class="card-header-sm">Batting</div>
+                    <table class="stats-table">
+                        <thead>
+                            <tr>
+                                <th>Batsman</th>
+                                <th class="text-right">R</th>
+                                <th class="text-right">B</th>
+                                <th class="text-right">4s</th>
+                                <th class="text-right">6s</th>
+                                <th class="text-right">SR</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id="row-p1" class="striker-row">
+                                <td class="player-name-cell"><input type="text" id="p1-name" value="Batsman 1" class="input-flat"> <span class="indicator">*</span></td>
+                                <td id="p1-runs" class="text-right">0</td>
+                                <td id="p1-balls" class="text-right">0</td>
+                                <td id="p1-fours" class="text-right">0</td>
+                                <td id="p1-sixes" class="text-right">0</td>
+                                <td id="p1-sr" class="text-right text-muted">0.0</td>
+                            </tr>
+                            <tr id="row-p2">
+                                <td class="player-name-cell"><input type="text" id="p2-name" value="Batsman 2" class="input-flat"> <span class="indicator">*</span></td>
+                                <td id="p2-runs" class="text-right">0</td>
+                                <td id="p2-balls" class="text-right">0</td>
+                                <td id="p2-fours" class="text-right">0</td>
+                                <td id="p2-sixes" class="text-right">0</td>
+                                <td id="p2-sr" class="text-right text-muted">0.0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card table-card">
+                    <div class="card-header-sm">Bowling</div>
+                    <table class="stats-table">
+                        <thead>
+                            <tr>
+                                <th>Bowler</th>
+                                <th class="text-right">O</th>
+                                <th class="text-right">R</th>
+                                <th class="text-right">W</th>
+                                <th class="text-right">Econ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="text" id="bowl-name" value="Bowler" class="input-flat"></td>
+                                <td id="bowl-overs" class="text-right">0.0</td>
+                                <td id="bowl-runs" class="text-right">0</td>
+                                <td id="bowl-wickets" class="text-right">0</td>
+                                <td id="bowl-econ" class="text-right text-muted">0.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="panel-edit-score" class="card hidden margin-bottom-md">
+                <div class="card-header-sm">Edit Core Values</div>
+                <div class="form-grid text-sm">
+                    <div class="form-group">
+                        <label>Total Runs</label>
+                        <input type="number" id="edit-runs" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Wickets</label>
+                        <input type="number" id="edit-wickets" min="0" max="10">
+                    </div>
+                    <div class="form-group">
+                        <label>Valid Deliveries</label>
+                        <input type="number" id="edit-balls" min="0">
+                    </div>
+                </div>
+                <div class="flex-end gap-sm margin-top-sm">
+                    <button id="btn-edit-cancel" class="btn btn-sm btn-secondary">Cancel</button>
+                    <button id="btn-edit-save" class="btn btn-sm btn-primary">Apply Changes</button>
+                </div>
+            </div>
+
+            <div id="scoring-control-board">
+                <div class="scoring-grid">
+                    <button class="btn-score" data-value="0">0</button>
+                    <button class="btn-score" data-value="1">1</button>
+                    <button class="btn-score" data-value="2">2</button>
+                    <button class="btn-score" data-value="3">3</button>
+                    <button class="btn-score" data-value="4">4</button>
+                    <button class="btn-score" data-value="6">6</button>
+                    <button class="btn-score special" data-value="W">W</button>
+                    <button class="btn-score special" data-value="WD">WD</button>
+                    <button class="btn-score special" data-value="NB">NB</button>
+                </div>
+
+                <div class="extra-controls-grid">
+                    <button id="btn-undo" class="btn btn-secondary">Undo Ball</button>
+                    <button id="btn-end-over" class="btn btn-secondary">Rotate Strike</button>
+                    <button id="btn-end-innings" class="btn btn-secondary">End Innings</button>
+                </div>
+            </div>
+
+            <div class="card history-stream-card">
+                <div class="card-header-sm">Ball Timeline</div>
+                <div id="ball-history-stream" class="history-stream-container">
+                    <span class="text-muted text-sm">No balls delivered yet in this innings.</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-history" class="view hidden">
+            <header class="view-header">
+                <button class="btn-back">&larr; Dashboard</button>
+                <h2>Match History</h2>
+            </header>
+            <div id="history-list-container" class="history-list">
+                </div>
+        </section>
+
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
+
