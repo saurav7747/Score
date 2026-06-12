@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#FAF7F2">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="SauravScore">
+  <title>SauravScore</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #FAF7F2;
+      color: #111827;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overscroll-behavior: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .app-container {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: #FAF7F2;
+      box-shadow: 0 0 40px rgba(0,0,0,0.02);
+    }
+
+    @media (min-width: 768px) {
+      .app-container {
+        max-width: 720px;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .app-container {
+        max-width: 860px;
+        border-left: 1px solid #E5E7EB;
+        border-right: 1px solid #E5E7EB;
+      }
+    }
+
+    /* Splash */
+    .splash-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #FAF7F2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .splash-text {
+      font-size: 2.8rem;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      color: #111827;
+      opacity: 0;
+      transform: scale(0.96);
+      animation: fadeScaleIn 0.3s ease forwards;
+    }
+
+    .splash-sub {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: #6B7280;
+      opacity: 0;
+      animation: fadeIn 0.3s ease 0.1s forwards;
+    }
+
+    @keyframes fadeScaleIn {
+      0% { opacity: 0; transform: scale(0.96); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    /* Main screens */
+    .screen {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      padding: 24px 20px 32px;
+      animation: slideUp 0.2s ease;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .header {
+      margin-bottom: 32px;
+    }
+
+    .logo {
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      color: #111827;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: #6B7280;
+      margin-top: 4px;
+    }
+
+    .card {
+      background: #FFFFFF;
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+      border: 1px solid #E5E7EB;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+      transition: all 0.15s ease;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 24px;
+      border-radius: 14px;
+      font-weight: 500;
+      font-size: 1rem;
+      border: none;
+      cursor: pointer;
+      background: #FFFFFF;
+      color: #111827;
+      border: 1px solid #E5E7EB;
+      transition: all 0.15s;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: #0F766E;
+      color: white;
+      border: 1px solid #0F766E;
+    }
+
+    .btn-primary:active {
+      background: #0c5e58;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+      background: #F3F4F6;
+    }
+
+    .btn-primary:active {
+      background: #0c5e58;
+    }
+
+    .btn-block {
+      width: 100%;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .input-field {
+      margin-bottom: 20px;
+    }
+
+    .input-field label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #6B7280;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .input-field input, .input-field select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid #E5E7EB;
+      border-radius: 14px;
+      font-size: 1rem;
+      background: #FFFFFF;
+      color: #111827;
+      outline: none;
+      transition: border 0.15s;
+    }
+
+    .input-field input:focus, .input-field select:focus {
+      border-color: #0F766E;
+    }
+
+    .score-display {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .team-score {
+      font-size: 2.4rem;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+
+    .team-name-big {
+      font-size: 1.4rem;
+      font-weight: 500;
+      color: #111827;
+    }
+
+    .overs-text {
+      font-size: 0.95rem;
+      color: #6B7280;
+      margin-top: 4px;
+    }
+
+    .crr-target {
+      display: flex;
+      gap: 20px;
+      font-size: 0.9rem;
+      color: #6B7280;
+      margin-top: 8px;
+    }
+
+    .batsman-row, .bowler-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #F3F4F6;
+      font-size: 0.95rem;
+    }
+
+    .striker-indicator {
+      color: #0F766E;
+      font-weight: 600;
+    }
+
+    .scoring-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .scoring-btn {
+      padding: 18px 6px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.1s;
+    }
+
+    .scoring-btn:active {
+      background: #F3F4F6;
+      transform: scale(0.95);
+    }
+
+    .scoring-btn.wide {
+      background: #FFF7ED;
+      border-color: #FDBA74;
+    }
+
+    .scoring-btn.wicket {
+      color: #DC2626;
+      font-weight: 700;
+    }
+
+    .history-item {
+      padding: 16px 0;
+      border-bottom: 1px solid #F3F4F6;
+      cursor: pointer;
+    }
+
+    .install-banner {
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .offline-badge {
+      background: #FEF3C7;
+      color: #92400E;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6B7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="splash-screen" id="splashScreen">
+    <div class="splash-text">SauravScore</div>
+    <div class="splash-sub">Built by Saurav Kumar</div>
+  </div>
+
+  <div class="app-container" id="appContainer">
+    <!-- Dashboard -->
+    <div id="dashboardScreen" class="screen active">
+      <div class="header">
+        <div class="logo">SauravScore</div>
+        <div class="subtitle">Minimal Cricket Scoring App</div>
+      </div>
+      <div id="installBanner" class="install-banner" style="display: none;">
+        <span style="font-weight:500;">📲 Install App</span>
+        <button class="btn btn-primary" id="installBtn" style="padding:10px 18px;">Install</button>
+      </div>
+      <div id="offlineIndicator" style="display:none; margin-bottom:16px;"><span class="offline-badge">⚡ Offline Mode Active</span></div>
+      <button class="btn btn-primary btn-block" id="newMatchBtn" style="margin-bottom:12px;">+ New Match</button>
+      <button class="btn btn-block" id="historyBtn">Match History</button>
+    </div>
+
+    <!-- Create Match -->
+    <div id="createMatchScreen" class="screen">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:24px;">
+        <button class="btn" id="backFromCreate" style="padding:8px 12px;">←</button>
+        <span style="font-weight:600; font-size:1.2rem;">New Match</span>
+      </div>
+      <div class="card">
+        <div class="input-field"><label>Team A</label><input type="text" id="teamA" placeholder="India" value="India"></div>
+        <div class="input-field"><label>Team B</label><input type="text" id="teamB" placeholder="Australia" value="Australia"></div>
+        <div class="input-field"><label>Overs</label><input type="number" id="oversInput" placeholder="20" value="20" min="1" max="50"></div>
+        <div class="input-field"><label>Toss Winner</label><select id="tossWinner"><option value="A">Team A</option><option value="B">Team B</option></select></div>
+        <div class="input-field"><label>Decision</label><select id="decision"><option value="bat">Bat First</option><option value="bowl">Bowl First</option></select></div>
+        <button class="btn btn-primary btn-block" id="startMatchBtn">Start Match</button>
+      </div>
+    </div>
+
+    <!-- Live Scoreboard -->
+    <div id="scoreboardScreen" class="screen">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+        <button class="btn" id="backToDashboard" style="padding:8px 12px;">←</button>
+        <span style="font-weight:600;">Live</span>
+      </div>
+      <div class="card" id="liveScoreCard"></div>
+      <div class="card" id="batsmanContainer"></div>
+      <div class="card" id="bowlerContainer"></div>
+      <div class="scoring-grid" id="scoringPanel"></div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+        <button class="btn" id="undoBtn">↩ Undo</button>
+        <button class="btn" id="endOverBtn">End Over</button>
+        <button class="btn" id="endInningsBtn">End Innings</button>
+        <button class="btn" id="resetMatchBtn" style="color:#DC2626;">Reset</button>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <div style="font-weight:600; margin-bottom:8px;">Ball History</div>
+        <div id="ballHistory" style="max-height:120px; overflow-y:auto; font-size:0.9rem; color:#4B5563;"></div>
+      </div>
+      <button class="btn btn-block" id="exportBtn" style="margin-top:12px;">Export JSON</button>
+    </div>
+
+    <!-- Match History -->
+    <div id="historyScreen" class="screen">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:24px;">
+        <button class="btn" id="backFromHistory" style="padding:8px 12px;">←</button>
+        <span style="font-weight:600; font-size:1.2rem;">Match History</span>
+      </div>
+      <div id="historyList"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+  </html>
+  
